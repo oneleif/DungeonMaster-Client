@@ -42,7 +42,6 @@ public class HomeUIManager : MonoBehaviour
     #endregion
 
     #region Panel Controls
-
     public void CleanPanels() {
         homePanel.SetActive(false);
         signInPanel.SetActive(false);
@@ -94,7 +93,7 @@ public class HomeUIManager : MonoBehaviour
 
     #region Authentication Requests
     IEnumerator REGISTER() {
-        userInfo = new UserInfo(-1, emailRegisterInput.text, passwordRegisterInput.text);
+        userInfo = new UserInfo(null, emailRegisterInput.text, passwordRegisterInput.text);
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(userInfo));
         UnityWebRequest www = CreatePostRequest(formData, registerRoute);
 
@@ -103,7 +102,7 @@ public class HomeUIManager : MonoBehaviour
     }
 
     IEnumerator LOGIN() {
-        userInfo = new UserInfo(-1, emailSignInInput.text, passwordSignInInput.text);
+        userInfo = new UserInfo(null, emailSignInInput.text, passwordSignInInput.text);
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(userInfo));
         UnityWebRequest www = CreatePostRequest(formData, loginRoute);
 
@@ -117,7 +116,8 @@ public class HomeUIManager : MonoBehaviour
         www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
 
         yield return StartCoroutine(WaitForRequest(www, profileRoute));
-        userInfo = JsonUtility.FromJson<UserInfo>(www.downloadHandler.text);
+        JsonUtility.FromJsonOverwrite(www.downloadHandler.text, userInfo);
+        Debug.Log(userInfo.id);
     }
 
     IEnumerator LOGOUT() {
@@ -147,7 +147,7 @@ public class HomeUIManager : MonoBehaviour
     }
 
     byte[] GetUserInfoFormData() {
-        userInfo = new UserInfo(-1, emailRegisterInput.text, passwordRegisterInput.text);
+        userInfo = new UserInfo(null, emailRegisterInput.text, passwordRegisterInput.text);
         return System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(userInfo));
     }
     #endregion
