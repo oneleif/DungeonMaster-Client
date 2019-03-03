@@ -2,17 +2,13 @@
 using System;
 
 [Serializable]
-public class UserInfo
+public class User
 {
-    [SerializeField]
     public string id;
-    [SerializeField]
     public string email;
-    [SerializeField]
     public string password;
 
-    public UserInfo(string id, string email, string password) {
-        this.id = id;
+    public User(string email, string password) {
         this.email = email;
         this.password = password;
     }
