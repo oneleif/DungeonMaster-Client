@@ -30,7 +30,7 @@ public class HomeUIManager : MonoBehaviour
     const string URLPrefix = "https://";
 
     #region Private state variables
-    UserInfo userInfo;
+    User userInfo;
     #endregion
 
     #region Mono Callbacks
@@ -93,8 +93,10 @@ public class HomeUIManager : MonoBehaviour
 
     #region Authentication Requests
     IEnumerator REGISTER() {
-        userInfo = new UserInfo(null, emailRegisterInput.text, passwordRegisterInput.text);
-        byte[] formData = System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(userInfo));
+        userInfo = new User(emailRegisterInput.text, passwordRegisterInput.text);
+        string json = GetJSONWithoutID(userInfo);
+        
+        byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
         UnityWebRequest www = CreatePostRequest(formData, registerRoute);
 
         yield return StartCoroutine(WaitForRequest(www, registerRoute));
@@ -102,8 +104,10 @@ public class HomeUIManager : MonoBehaviour
     }
 
     IEnumerator LOGIN() {
-        userInfo = new UserInfo(null, emailSignInInput.text, passwordSignInInput.text);
-        byte[] formData = System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(userInfo));
+        userInfo = new User(emailSignInInput.text, passwordSignInInput.text);
+        string json = GetJSONWithoutID(userInfo);
+
+        byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
         UnityWebRequest www = CreatePostRequest(formData, loginRoute);
 
         yield return StartCoroutine(WaitForRequest(www, loginRoute));
@@ -117,7 +121,6 @@ public class HomeUIManager : MonoBehaviour
 
         yield return StartCoroutine(WaitForRequest(www, profileRoute));
         JsonUtility.FromJsonOverwrite(www.downloadHandler.text, userInfo);
-        Debug.Log(userInfo.id);
     }
 
     IEnumerator LOGOUT() {
@@ -128,13 +131,19 @@ public class HomeUIManager : MonoBehaviour
     #endregion
 
     #region Request Utilities
+    string GetJSONWithoutID(object o) {
+        string json = JsonUtility.ToJson(o);
+        return json.Replace("\"\"", "null");
+    }
+
     IEnumerator WaitForRequest(UnityWebRequest www, string requestFunction) {
+        
         GlobalDebug.LogMessage("function: " + requestFunction + " waiting for request: " + www.url);
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError) {
-            GlobalDebug.LogMessage("request failed: " + www.url + " " + www.error + " body: " + www.uploadHandler.data);
+            GlobalDebug.LogMessage("request failed, url: " + www.url + " error: " + www.error + " body: " + System.Text.Encoding.UTF8.GetString(www.uploadHandler.data));
         } else {
-            GlobalDebug.LogMessage("request succeeded: " + www.url + " responseCode: " + www.responseCode + " body: " + www.downloadHandler.text);
+            GlobalDebug.LogMessage("request succeeded, url: " + www.url + " responseCode: " + www.responseCode + " body: " + www.downloadHandler.text);
         }
     }
 
@@ -144,11 +153,6 @@ public class HomeUIManager : MonoBehaviour
         www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json; charset=utf-8");
         return www;
-    }
-
-    byte[] GetUserInfoFormData() {
-        userInfo = new UserInfo(null, emailRegisterInput.text, passwordRegisterInput.text);
-        return System.Text.Encoding.UTF8.GetBytes(JsonUtility.ToJson(userInfo));
     }
     #endregion
 }
