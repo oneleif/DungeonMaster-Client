@@ -19,10 +19,12 @@ public class HomeUIManager : MonoBehaviour
     public GameObject tutorialPanel;
 
     public GameObject mainPanel;
+
+    public GameObject adminPanel;
     #endregion
 
     //TODO: Extrapolate these out to a constants file or URL builder
-    const string baseURL = "dungeonmaster-development.vapor.cloud";
+    public string baseURL = "dungeonmaster-development.vapor.cloud";
     const string loginRoute = "login";
     const string registerRoute = "register";
     const string profileRoute = "profile";
@@ -31,6 +33,8 @@ public class HomeUIManager : MonoBehaviour
 
     #region Private state variables
     User userInfo;
+
+    public GameObject currentPanel;
     #endregion
 
     #region Mono Callbacks
@@ -38,6 +42,13 @@ public class HomeUIManager : MonoBehaviour
     {
         CleanPanels();
         GoToHome();
+    }
+
+    private void Update() {
+        if (Input.GetButtonDown("Console")) {
+            currentPanel.SetActive(!currentPanel.activeInHierarchy);
+            adminPanel.SetActive(!adminPanel.activeInHierarchy);
+        }
     }
     #endregion
 
@@ -48,31 +59,37 @@ public class HomeUIManager : MonoBehaviour
         registerPanel.SetActive(false);
         tutorialPanel.SetActive(false);
         mainPanel.SetActive(false);
+        adminPanel.SetActive(false);
     }
 
     public void GoToHome() {
         CleanPanels();
         homePanel.SetActive(true);
+        currentPanel = homePanel;
     }
 
     public void GoToSignIn() {
         CleanPanels();
         signInPanel.SetActive(true);
+        currentPanel = signInPanel;
     }
 
     public void GoToRegister() {
         CleanPanels();
         registerPanel.SetActive(true);
+        currentPanel = registerPanel;
     }
 
     public void GoToTutorials() {
         CleanPanels();
         tutorialPanel.SetActive(true);
+        currentPanel = tutorialPanel;
     }
 
     public void GoToMain() {
         CleanPanels();
         mainPanel.SetActive(true);
+        currentPanel = mainPanel;
     }
 
     #endregion
