@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 [Serializable]
 public class User
@@ -12,4 +13,9 @@ public class User
         this.email = email;
         this.password = password;
     }
+}
+
+[Serializable]
+public class UserList {
+    public List<User> users;
 }
