@@ -6,6 +6,8 @@ using System;
 [Serializable]
 public class Character
 {
+    public static Character defaultCharacter = new Character(null, "leif", 0, "Dwarf", "Mine", 0, 0, 10, 0, 0, 0, 0, new Ability[] { }, new string[] { }, new string[] { }, new string[] { }, new string[] { }, Skills.defaultSkills, Stats.defaultStats, Stats.defaultStats);
+
     [SerializeField]
     string id;
     [SerializeField]

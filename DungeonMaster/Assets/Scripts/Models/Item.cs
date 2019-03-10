@@ -6,6 +6,7 @@ using System;
 [Serializable]
 public class Item
 {
+    public static Item defaultItem = new Item(null, "bag of holding", "holds a ton of stuff", "looks like a brown burlap sack", "image", 1, new Currency(1, 0, 0, 0, 0), 0);
     [SerializeField]
     string id;
     [SerializeField]

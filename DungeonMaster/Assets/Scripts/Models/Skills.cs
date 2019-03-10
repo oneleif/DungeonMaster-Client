@@ -6,6 +6,8 @@ using System;
 [Serializable]
 public class Skills
 {
+    public static Skills defaultSkills = new Skills(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
     [SerializeField]
     int acrobatics;
     [SerializeField]

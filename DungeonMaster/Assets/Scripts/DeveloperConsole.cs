@@ -58,7 +58,7 @@ public class DeveloperConsole : MonoBehaviour
                 break;
         }
 
-        StartCoroutine(LOADSTUFF(baseURL + currentDataType));
+        StartCoroutine(LoadTableRequest(baseURL + currentDataType));
     }
 
     void CleanScrollView() {
@@ -67,7 +67,7 @@ public class DeveloperConsole : MonoBehaviour
         }
     }
 
-    IEnumerator LOADSTUFF(string url) {
+    IEnumerator LoadTableRequest(string url) {
         UnityWebRequest www = UnityWebRequest.Get(url);
         www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
 
@@ -122,15 +122,14 @@ public class DeveloperConsole : MonoBehaviour
         return type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
     }
 
-    public void AddSelectedType() {
+    public void CreateRecord() {
         CleanScrollView();
-        StartCoroutine(ADDNEW());
+        StartCoroutine(CreateRecordRequest());
         DropdownValueChanged(databaseSelector);
     }
 
-    IEnumerator ADDNEW() {
+    IEnumerator CreateRecordRequest() {
         string json = GetJSONForType();
-        Debug.Log("JSON " + json);
 
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
         UnityWebRequest www = CreatePostRequest(baseURL + currentDataType, formData);
@@ -143,18 +142,15 @@ public class DeveloperConsole : MonoBehaviour
 
         switch (currentDataType) {
             case DataType.items:
-                Item item = new Item(null, "s", "s", "s", "s", 1, new Currency(0, 0, 0, 0, 0), 0);
+                Item item = Item.defaultItem;
                 json = JsonUtility.ToJson(item);
                 break;
             case DataType.characters:
-                Stats stats = new Stats(0, 0, 0, 0, 0, 0);
-                Skills skills = new Skills(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                Character character = new Character(null, "leif", 0, "Dwarf", "Mine", 0, 0, 10, 0, 0, 0, 0, new Ability[] { }, new string[] { }, new string[] { }, new string[] { }, new string[] { }, skills, stats, stats);
+                Character character = Character.defaultCharacter;
                 json = JsonUtility.ToJson(character);
                 break;
         }
 
-        //TODO figure out how to remove the ID from JSON
         return json.Replace("\"id\":\"\",", "");
     }
 

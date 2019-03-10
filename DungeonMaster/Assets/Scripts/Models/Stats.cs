@@ -6,6 +6,8 @@ using System;
 [Serializable]
 public class Stats
 {
+    public static Stats defaultStats = new Stats(0, 0, 0, 0, 0, 0);
+    
     [SerializeField]
     int strength;
     [SerializeField]

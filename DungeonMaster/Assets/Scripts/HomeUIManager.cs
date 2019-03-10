@@ -96,20 +96,20 @@ public class HomeUIManager : MonoBehaviour
 
     #region Button Calls
     public void Register() {
-        StartCoroutine(REGISTER());
+        StartCoroutine(RegisterRequest());
     }
 
     public void LogIn() {
-        StartCoroutine(LOGIN());
+        StartCoroutine(LoginRequest());
     }
 
     public void Logout() {
-        StartCoroutine(LOGOUT());
+        StartCoroutine(LogoutRequest());
     }
     #endregion
 
     #region Authentication Requests
-    IEnumerator REGISTER() {
+    IEnumerator RegisterRequest() {
         userInfo = new User(emailRegisterInput.text, passwordRegisterInput.text);
         string json = GetJSONWithoutID(userInfo);
         
@@ -120,7 +120,7 @@ public class HomeUIManager : MonoBehaviour
         GoToSignIn();
     }
 
-    IEnumerator LOGIN() {
+    IEnumerator LoginRequest() {
         userInfo = new User(emailSignInInput.text, passwordSignInInput.text);
         string json = GetJSONWithoutID(userInfo);
 
@@ -129,10 +129,10 @@ public class HomeUIManager : MonoBehaviour
 
         yield return StartCoroutine(WaitForRequest(www, loginRoute));
         GoToMain();
-        StartCoroutine(PROFILE());
+        StartCoroutine(ProfileRequest());
     }
 
-    IEnumerator PROFILE() {
+    IEnumerator ProfileRequest() {
         UnityWebRequest www = UnityWebRequest.Get(URLPrefix + baseURL + "/" + profileRoute);
         www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
 
@@ -140,7 +140,7 @@ public class HomeUIManager : MonoBehaviour
         JsonUtility.FromJsonOverwrite(www.downloadHandler.text, userInfo);
     }
 
-    IEnumerator LOGOUT() {
+    IEnumerator LogoutRequest() {
         UnityWebRequest www = UnityWebRequest.Get(URLPrefix + baseURL + "/" + logoutRoute);
         yield return StartCoroutine(WaitForRequest(www, logoutRoute));
         GoToHome();
@@ -160,7 +160,7 @@ public class HomeUIManager : MonoBehaviour
         if (www.isNetworkError || www.isHttpError) {
             GlobalDebug.LogMessage("request failed, url: " + www.url + " error: " + www.error + " body: " + System.Text.Encoding.UTF8.GetString(www.uploadHandler.data));
         } else {
-            GlobalDebug.LogMessage("request succeeded, url: " + www.url + " responseCode: " + www.responseCode + " body: " + www.downloadHandler.text);
+            GlobalDebug.LogMessage("request succeeded, url: " + www.url + " responseCode: " + www.responseCode + " request body " + System.Text.Encoding.UTF8.GetString(www.uploadHandler.data)  + " response body: " + www.downloadHandler.text);
         }
     }
 

@@ -6,6 +6,8 @@ using System;
 [Serializable]
 public class Ability
 {
+    public static Ability defaultAbility = new Ability(0, "1d6", 0, "swing a sword", "slice");
+
     [SerializeField]
     int damageBonus;
     [SerializeField]
