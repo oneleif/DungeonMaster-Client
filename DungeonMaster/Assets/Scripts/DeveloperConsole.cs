@@ -17,76 +17,98 @@ public class DeveloperConsole : MonoBehaviour
 
     public Dropdown databaseSelector;
 
-    public GameObject verticalLayoutGroup;
+    public GameObject scrollViewContent;
     public GameObject horizontalLayoutGroup;
-    
     #endregion
 
     List<string> databases;
-    public string currentTable;
     ItemList itemList;
+    CharacterList characterList;
 
-    public string itemURL = "https://dungeonmaster-development.vapor.cloud/items";
+    public string baseURL = "https://dungeonmaster-development.vapor.cloud/";
+
+    DataType currentDataType;
+
+    public enum DataType {
+        items, characters
+    }
 
     void Start()
     {
         databases = new List<string>();
         databases.Add("items");
-        databases.Add("monsters");
+        databases.Add("characters");
         databaseSelector.ClearOptions();
         databaseSelector.AddOptions(databases);
         databaseSelector.onValueChanged.AddListener(delegate {
             DropdownValueChanged(databaseSelector);
         });
-        databaseSelector.value = 0;
+        DropdownValueChanged(databaseSelector);
     }
     
-
     void DropdownValueChanged(Dropdown change) {
-        currentTable = change.options[change.value].text;
-
+        CleanScrollView();
+        
         switch (change.value) {
             case 0:
-                LoadItems();
+                currentDataType = DataType.items;
                 break;
+            case 1:
+                currentDataType = DataType.characters;
+                break;
+        }
+
+        StartCoroutine(LOADSTUFF(baseURL + currentDataType));
+    }
+
+    void CleanScrollView() {
+        foreach(Transform child in scrollViewContent.transform) {
+            Destroy(child.gameObject);
         }
     }
 
-    void LoadItems() {
-        StartCoroutine(LOADITEMS());
-    }
-
-    IEnumerator LOADITEMS() {
-        UnityWebRequest www = UnityWebRequest.Get(itemURL);
+    IEnumerator LOADSTUFF(string url) {
+        UnityWebRequest www = UnityWebRequest.Get(url);
         www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
 
-        GlobalDebug.LogMessage("function: LOADITEMS " + " waiting for request: " + www.url);
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError) {
             GlobalDebug.LogMessage("request failed, url: " + www.url + " error: " + www.error);
         } else {
             GlobalDebug.LogMessage("request succeeded, url: " + www.url + " responseCode: " + www.responseCode + " body: " + www.downloadHandler.text);
             string json = www.downloadHandler.text;
-            json = "{\"items\":" + json + "}";
-            itemList = JsonUtility.FromJson<ItemList>(json);
+            json = "{\"" + currentDataType.ToString() + "\":" + json + "}";
+            SetList(json);
         }
-        ShowItems();
     }
 
-    void ShowItems() {
-        CreateHeader(typeof(Item));
-        foreach (Item item in itemList.items) {
-            GameObject horizontalGroup = Instantiate(horizontalLayoutGroup, verticalLayoutGroup.transform);
-            FieldInfo[] fields = GetFields(item);
+    void SetList(string json) {
+        switch (currentDataType) {
+            case DataType.items:
+                itemList = JsonUtility.FromJson<ItemList>(json);
+                ShowItems(typeof(Item), itemList.items);
+                break;
+            case DataType.characters:
+                characterList = JsonUtility.FromJson<CharacterList>(json);
+                ShowItems(typeof(Character), characterList.characters);
+                break;
+        }
+    }
+
+    void ShowItems(Type type, object[] objs) {
+        CreateHeader(type);
+        foreach (var obj in objs) {
+            GameObject horizontalGroup = Instantiate(horizontalLayoutGroup, scrollViewContent.transform);
+            FieldInfo[] fields = GetFields(obj);
             foreach (FieldInfo field in fields) {
                 GameObject input = Instantiate(inputField, horizontalGroup.transform);
-                input.GetComponent<InputField>().text = field.GetValue(item).ToString();
+                input.GetComponent<InputField>().text = field.GetValue(obj).ToString();
             }
         }
     }
 
     void CreateHeader(Type type) {
-        GameObject horizontalGroup = Instantiate(horizontalLayoutGroup, verticalLayoutGroup.transform);
+        GameObject horizontalGroup = Instantiate(horizontalLayoutGroup, scrollViewContent.transform);
 
         FieldInfo[] fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
         foreach (FieldInfo field in fields) {
@@ -101,23 +123,39 @@ public class DeveloperConsole : MonoBehaviour
     }
 
     public void AddSelectedType() {
-        StartCoroutine(ADDITEM());
+        CleanScrollView();
+        StartCoroutine(ADDNEW());
+        DropdownValueChanged(databaseSelector);
     }
 
-    IEnumerator ADDITEM() {
-        Item item = new Item(null,"s", "s", "s", "s", 1, new Currency(0, 0, 0, 0, 0), 0);
-        string json = GetJSONWithoutID(item);
+    IEnumerator ADDNEW() {
+        string json = GetJSONForType();
         Debug.Log("JSON " + json);
 
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
-        UnityWebRequest www = CreatePostRequest(formData);
+        UnityWebRequest www = CreatePostRequest(baseURL + currentDataType, formData);
 
-        yield return StartCoroutine(WaitForRequest(www, "items"));
+        yield return StartCoroutine(WaitForRequest(www, currentDataType.ToString()));
     }
 
-    string GetJSONWithoutID(object o) {
-        string json = JsonUtility.ToJson(o);
-        return json.Replace("\"\"", "null");
+    string GetJSONForType() {
+        string json = "";
+
+        switch (currentDataType) {
+            case DataType.items:
+                Item item = new Item(null, "s", "s", "s", "s", 1, new Currency(0, 0, 0, 0, 0), 0);
+                json = JsonUtility.ToJson(item);
+                break;
+            case DataType.characters:
+                Stats stats = new Stats(0, 0, 0, 0, 0, 0);
+                Skills skills = new Skills(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                Character character = new Character(null, "leif", 0, "Dwarf", "Mine", 0, 0, 10, 0, 0, 0, 0, new Ability[] { }, new string[] { }, new string[] { }, new string[] { }, new string[] { }, skills, stats, stats);
+                json = JsonUtility.ToJson(character);
+                break;
+        }
+
+        //TODO figure out how to remove the ID from JSON
+        return json.Replace("\"id\":\"\",", "");
     }
 
     IEnumerator WaitForRequest(UnityWebRequest www, string requestFunction) {
@@ -131,8 +169,8 @@ public class DeveloperConsole : MonoBehaviour
         }
     }
 
-    UnityWebRequest CreatePostRequest(byte[] formData) {
-        UnityWebRequest www = UnityWebRequest.Post(itemURL, new WWWForm());
+    UnityWebRequest CreatePostRequest(string url, byte[] formData) {
+        UnityWebRequest www = UnityWebRequest.Post(url, new WWWForm());
         www.uploadHandler = (UploadHandler)new UploadHandlerRaw(formData);
         www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json; charset=utf-8");
