@@ -143,15 +143,15 @@ public class DeveloperConsole : MonoBehaviour
         switch (currentDataType) {
             case DataType.items:
                 Item item = Item.defaultItem;
-                json = JsonUtility.ToJson(item);
+                json = NetworkingCalls.GetJSONWithoutID(item);
                 break;
             case DataType.characters:
                 Character character = Character.defaultCharacter;
-                json = JsonUtility.ToJson(character);
+                json = NetworkingCalls.GetJSONWithoutID(character);
                 break;
         }
 
-        return json.Replace("\"id\":\"\",", "");
+        return json;
     }
 
     IEnumerator WaitForRequest(UnityWebRequest www, string requestFunction) {

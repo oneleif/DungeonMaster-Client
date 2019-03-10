@@ -24,7 +24,7 @@ public class HomeUIManager : MonoBehaviour
     #endregion
 
     //TODO: Extrapolate these out to a constants file or URL builder
-    public string baseURL = "dungeonmaster-development.vapor.cloud";
+    const string baseURL = "dungeonmaster-development.vapor.cloud";
     const string loginRoute = "login";
     const string registerRoute = "register";
     const string profileRoute = "profile";
@@ -111,7 +111,7 @@ public class HomeUIManager : MonoBehaviour
     #region Authentication Requests
     IEnumerator RegisterRequest() {
         userInfo = new User(emailRegisterInput.text, passwordRegisterInput.text);
-        string json = GetJSONWithoutID(userInfo);
+        string json = NetworkingCalls.GetJSONWithoutID(userInfo);
         
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
         UnityWebRequest www = CreatePostRequest(formData, registerRoute);
@@ -122,7 +122,7 @@ public class HomeUIManager : MonoBehaviour
 
     IEnumerator LoginRequest() {
         userInfo = new User(emailSignInInput.text, passwordSignInInput.text);
-        string json = GetJSONWithoutID(userInfo);
+        string json = NetworkingCalls.GetJSONWithoutID(userInfo);
 
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
         UnityWebRequest www = CreatePostRequest(formData, loginRoute);
@@ -148,10 +148,7 @@ public class HomeUIManager : MonoBehaviour
     #endregion
 
     #region Request Utilities
-    string GetJSONWithoutID(object o) {
-        string json = JsonUtility.ToJson(o);
-        return json.Replace("\"\"", "null");
-    }
+    
 
     IEnumerator WaitForRequest(UnityWebRequest www, string requestFunction) {
         
@@ -160,7 +157,7 @@ public class HomeUIManager : MonoBehaviour
         if (www.isNetworkError || www.isHttpError) {
             GlobalDebug.LogMessage("request failed, url: " + www.url + " error: " + www.error + " body: " + System.Text.Encoding.UTF8.GetString(www.uploadHandler.data));
         } else {
-            GlobalDebug.LogMessage("request succeeded, url: " + www.url + " responseCode: " + www.responseCode + " request body " + System.Text.Encoding.UTF8.GetString(www.uploadHandler.data)  + " response body: " + www.downloadHandler.text);
+            GlobalDebug.LogMessage("request succeeded, url: " + www.url + " responseCode: " + www.responseCode + " response body: " + www.downloadHandler.text);
         }
     }
 
