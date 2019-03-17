@@ -63,33 +63,29 @@ public class HomeUIManager : MonoBehaviour
     }
 
     public void GoToHome() {
-        CleanPanels();
-        homePanel.SetActive(true);
-        currentPanel = homePanel;
+        GoToPanel(homePanel);
     }
 
     public void GoToSignIn() {
-        CleanPanels();
-        signInPanel.SetActive(true);
-        currentPanel = signInPanel;
+        GoToPanel(signInPanel);
     }
 
     public void GoToRegister() {
-        CleanPanels();
-        registerPanel.SetActive(true);
-        currentPanel = registerPanel;
+        GoToPanel(registerPanel);
     }
 
     public void GoToTutorials() {
-        CleanPanels();
-        tutorialPanel.SetActive(true);
-        currentPanel = tutorialPanel;
+        GoToPanel(tutorialPanel);
     }
 
     public void GoToMain() {
+        GoToPanel(mainPanel);
+    }
+
+    public void GoToPanel(GameObject go) {
         CleanPanels();
-        mainPanel.SetActive(true);
-        currentPanel = mainPanel;
+        go.SetActive(true);
+        currentPanel = go;
     }
 
     #endregion
