@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class HomeUIManager : MonoBehaviour
+public class HomeController : MonoBehaviour
 {
     #region Public inspector references
     public GameObject homePanel;
