@@ -25,7 +25,7 @@ public class MapEditorController : MonoBehaviour
 
     void Start()
     {
-        
+        worldMap = new WorldMap();
     }
 
     void Update()
@@ -57,7 +57,9 @@ public class MapEditorController : MonoBehaviour
 
     public void OnImageClicked(GameObject imageObject)
     {
-        worldMap.image = imageObject.GetComponent<Image>().sprite;
+        Sprite sprite = imageObject.GetComponent<Image>().sprite;
+        worldMap.image = sprite;
+        mapImage.sprite = sprite;
         mapInfoPanel.SetActive(false);
     }
 
