@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MapEditorController : MonoBehaviour
+public class MapEditorViewController : MonoBehaviour
 {
     public GameObject backgroundTabButton;
     public GameObject drawTabButton;
@@ -15,6 +15,7 @@ public class MapEditorController : MonoBehaviour
 
     public GameObject mapPanel;
     public GameObject mapInfoPanel;
+    public GameObject mapLayersPanel;
 
     public Image mapImage;
     public Image backgroundColorImage;
