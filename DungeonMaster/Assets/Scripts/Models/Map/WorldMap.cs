@@ -8,4 +8,9 @@ public class WorldMap
     public Sprite image;
     public InstanceMap[] instances;
     public string partyPosition;
+
+    public WorldMap(string name) {
+        this.name = name;
+        image = Resources.Load<Sprite>("WorldMaps/fantasy_map_1");
+    }
 }

@@ -46,14 +46,4 @@ public class MainController : MonoBehaviour
         go.SetActive(true);
         currentPanel = go;
     }
-
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
 }

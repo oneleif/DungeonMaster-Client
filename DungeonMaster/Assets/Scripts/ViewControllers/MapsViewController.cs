@@ -5,20 +5,34 @@ using UnityEngine;
 public class MapsViewController : MonoBehaviour
 {
     public GameObject mapEditorPanel;
+    public MapEditorViewController mapEditor;
     public GameObject mapSelectorPanel;
 
-    WorldMap worldMap;
+    WorldMap currentWorldMap;
 
-    void Start()
-    {
+    public WorldMap CurrentWorldMap {
+        get {
+            return currentWorldMap;
+        }
+        set {
+            currentWorldMap = value;
+            GoToMapEditor();
+        }
+    }
+
+    private void OnEnable() {
         mapSelectorPanel.SetActive(true);
         mapEditorPanel.SetActive(false);
     }
 
-    public void SelectMap(WorldMap worldMap)
+    public void GoToMapEditor()
     {
-        this.worldMap = worldMap;
         mapSelectorPanel.SetActive(false);
         mapEditorPanel.SetActive(true);
+        mapEditor.WorldMap = currentWorldMap;
+    }
+
+    public void DeleteMap(WorldMap map) {
+        //TODO: Send request to delete map
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -11,10 +12,12 @@ public class HomeController : MonoBehaviour
     public GameObject signInPanel;
     public InputField emailSignInInput;
     public InputField passwordSignInInput;
+    public Text signInErrorText;
 
     public GameObject registerPanel;
     public InputField emailRegisterInput;
     public InputField passwordRegisterInput;
+    public Text registerErrorText;
 
     public GameObject tutorialPanel;
 
@@ -112,8 +115,15 @@ public class HomeController : MonoBehaviour
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
         UnityWebRequest www = CreatePostRequest(formData, registerRoute);
 
-        yield return StartCoroutine(WaitForRequest(www, registerRoute));
-        GoToSignIn();
+        bool failed = true;
+        yield return StartCoroutine(WaitForRequest(www, registerRoute, value => failed = value));
+
+        if (failed == false) {
+            registerErrorText.text = "";
+            GoToSignIn();
+        } else {
+            registerErrorText.text = "Register Failed";
+        }
     }
 
     IEnumerator LoginRequest() {
@@ -123,22 +133,35 @@ public class HomeController : MonoBehaviour
         byte[] formData = System.Text.Encoding.UTF8.GetBytes(json);
         UnityWebRequest www = CreatePostRequest(formData, loginRoute);
 
-        yield return StartCoroutine(WaitForRequest(www, loginRoute));
-        GoToMain();
-        StartCoroutine(ProfileRequest());
+        bool failed = true;
+        yield return StartCoroutine(WaitForRequest(www, loginRoute, value => failed = value));
+
+        if(failed == false) {
+            signInErrorText.text = "";
+            GoToMain();
+            StartCoroutine(ProfileRequest());
+        } else {
+            signInErrorText.text = "Sign in failed";
+        }
     }
 
     IEnumerator ProfileRequest() {
         UnityWebRequest www = UnityWebRequest.Get(URLPrefix + baseURL + "/" + profileRoute);
         www.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
 
-        yield return StartCoroutine(WaitForRequest(www, profileRoute));
-        JsonUtility.FromJsonOverwrite(www.downloadHandler.text, userInfo);
+        bool failed = true;
+        yield return StartCoroutine(WaitForRequest(www, profileRoute, value => failed = value));
+
+        if (failed == false) {
+            JsonUtility.FromJsonOverwrite(www.downloadHandler.text, userInfo);
+        }
     }
 
     IEnumerator LogoutRequest() {
         UnityWebRequest www = UnityWebRequest.Get(URLPrefix + baseURL + "/" + logoutRoute);
-        yield return StartCoroutine(WaitForRequest(www, logoutRoute));
+
+        bool failed = true;
+        yield return StartCoroutine(WaitForRequest(www, logoutRoute, value => failed = value));
         GoToHome();
     }
     #endregion
@@ -146,14 +169,16 @@ public class HomeController : MonoBehaviour
     #region Request Utilities
     
 
-    IEnumerator WaitForRequest(UnityWebRequest www, string requestFunction) {
+    IEnumerator WaitForRequest(UnityWebRequest www, string requestFunction, Action<bool> onFailed) {
         
         GlobalDebug.LogMessage("function: " + requestFunction + " waiting for request: " + www.url);
         yield return www.SendWebRequest();
         if (www.isNetworkError || www.isHttpError) {
             GlobalDebug.LogMessage("request failed, url: " + www.url + " error: " + www.error + " body: " + System.Text.Encoding.UTF8.GetString(www.uploadHandler.data));
+            onFailed(true);
         } else {
             GlobalDebug.LogMessage("request succeeded, url: " + www.url + " responseCode: " + www.responseCode + " response body: " + www.downloadHandler.text);
+            onFailed(false);
         }
     }
 

@@ -6,6 +6,10 @@ public class MapLayersViewModel
 {
     MapLayer[] mapLayers;
 
+    public MapLayersViewModel() {
+        mapLayers = new MapLayer[0];
+    }
+
     public void SetLayers(MapLayer[] layersToSet)
     {
         SetLayerText(layersToSet, 0);

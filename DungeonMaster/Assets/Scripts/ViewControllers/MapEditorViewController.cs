@@ -22,16 +22,16 @@ public class MapEditorViewController : MonoBehaviour
 
     public GameObject imageButtonPrefab;
 
-    public WorldMap worldMap;
+    WorldMap worldMap;
 
-    void Start()
-    {
-        worldMap = new WorldMap();
-    }
-
-    void Update()
-    {
-        
+    public WorldMap WorldMap {
+        get {
+            return worldMap;
+        }
+        set {
+            worldMap = value;
+            mapImage.sprite = worldMap.image;
+        }
     }
 
     //background layer functions

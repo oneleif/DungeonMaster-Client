@@ -6,10 +6,10 @@ public class MapLayersViewController : MonoBehaviour
 {
     MapLayersViewModel viewModel;
     GameObject mapLayerPrefab;
-    //WorldMap worldMap;
 
     void Start()
     {
+        viewModel = new MapLayersViewModel();
         LoadLayers();
     }
 
