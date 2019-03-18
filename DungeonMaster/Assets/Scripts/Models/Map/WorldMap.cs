@@ -6,6 +6,7 @@ public class WorldMap
 {
     public string name;
     public Sprite image;
+    public Color backgroundColor;
     public InstanceMap[] instances;
     public string partyPosition;
 

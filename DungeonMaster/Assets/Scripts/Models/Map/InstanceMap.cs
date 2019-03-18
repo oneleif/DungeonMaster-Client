@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class InstanceMap
 {
+    public string name;
     public InstanceMap[] regions;
     public Vector2 position;
-    public string name;
     public Map map;
 }
