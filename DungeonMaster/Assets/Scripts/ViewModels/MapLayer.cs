@@ -5,5 +5,10 @@ using UnityEngine;
 public class MapLayer
 {
     public string layerName;
-    public MapLayer[] children;
+    public List<MapLayer> children;
+
+    public MapLayer(string name) {
+        this.layerName = name;
+        children = new List<MapLayer>();
+    }
 }

@@ -31,10 +31,13 @@ public class MapSelectorViewController : MonoBehaviour {
         mapViewController.CurrentWorldMap = map;
     }
 
-    //TODO: load maps
+    //TODO: load maps from server
     WorldMap[] GetMaps() {
+        WorldMap map1 = new WorldMap("map1");
+        map1.instance.regions.Add(new InstanceMap());
+        map1.instance.regions.Add(new InstanceMap());
         WorldMap[] worldMaps = new WorldMap[] {
-            new WorldMap("map1"),
+            map1,
             new WorldMap("map2"),
             new WorldMap("map3")
         };

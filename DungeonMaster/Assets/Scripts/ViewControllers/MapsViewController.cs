@@ -5,7 +5,7 @@ using UnityEngine;
 public class MapsViewController : MonoBehaviour
 {
     public GameObject mapEditorPanel;
-    public MapEditorViewController mapEditor;
+    public MapHierarchyViewController mapHierarchy;
     public GameObject mapSelectorPanel;
 
     WorldMap currentWorldMap;
@@ -29,7 +29,7 @@ public class MapsViewController : MonoBehaviour
     {
         mapSelectorPanel.SetActive(false);
         mapEditorPanel.SetActive(true);
-        mapEditor.WorldMap = currentWorldMap;
+        mapHierarchy.WorldMap = currentWorldMap;
     }
 
     public void DeleteMap(WorldMap map) {

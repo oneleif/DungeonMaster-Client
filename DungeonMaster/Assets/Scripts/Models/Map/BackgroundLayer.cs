@@ -8,4 +8,10 @@ public class BackgroundLayer
     public Color color;
     public int rows;
     public int columns;
+
+    public BackgroundLayer() {
+        color = new Color(1, 1, 1);
+        rows = 0;
+        columns = 0;
+    }
 }

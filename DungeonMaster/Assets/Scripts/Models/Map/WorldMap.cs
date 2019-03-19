@@ -4,14 +4,12 @@ using UnityEngine;
 
 public class WorldMap
 {
-    public string name;
-    public Sprite image;
-    public Color backgroundColor;
-    public InstanceMap[] instances;
+    public InstanceMap instance;
     public string partyPosition;
 
     public WorldMap(string name) {
-        this.name = name;
-        image = Resources.Load<Sprite>("WorldMaps/fantasy_map_1");
+        instance = new InstanceMap();
+        instance.name = name;
+        instance.map.backgroundLayer.image = Resources.Load<Sprite>("WorldMaps/fantasy_map_1");
     }
 }

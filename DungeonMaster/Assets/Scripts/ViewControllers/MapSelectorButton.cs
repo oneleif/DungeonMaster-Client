@@ -29,13 +29,15 @@ public class MapSelectorButton : MonoBehaviour
     }
 
     void UpdateUI() {
-        mapImage.sprite = map.image;
-        mapName.text = map.name;
+        mapImage.sprite = map.instance.map.backgroundLayer.image;
+        mapName.text = map.instance.name;
 
+        editButton.onClick.RemoveAllListeners();
         editButton.onClick.AddListener(delegate {
             Edit();
         });
 
+        deleteButton.onClick.RemoveAllListeners();
         deleteButton.onClick.AddListener(delegate {
             Delete();
         });

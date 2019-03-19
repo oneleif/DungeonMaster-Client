@@ -40,6 +40,7 @@ public class DeveloperConsole : MonoBehaviour
         databases.Add("characters");
         databaseSelector.ClearOptions();
         databaseSelector.AddOptions(databases);
+        databaseSelector.onValueChanged.RemoveAllListeners();
         databaseSelector.onValueChanged.AddListener(delegate {
             DropdownValueChanged(databaseSelector);
         });
