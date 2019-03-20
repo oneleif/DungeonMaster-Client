@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Placeable : IPlaceable
 {
+    public Vector2 mapPosition;
     public PlaceableType placeableType;
 }
 

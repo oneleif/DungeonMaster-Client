@@ -2,54 +2,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapHierarchyViewModel
-{
+public class MapHierarchyViewModel {
     MapLayer mapLayers;
 
     public MapHierarchyViewModel() {
     }
 
-    public void UpdateLayers(WorldMap worldMap) {
-        mapLayers = new MapLayer(worldMap.instance.name);
-        if (worldMap.instance.regions != null && worldMap.instance.regions.Count > 0) {
-            mapLayers.children = SetHierarchyRecursively(worldMap.instance.regions, 1);
-        }
+    public List<MapLayer> GetHierarchy(WorldMap worldMap) {
+        List<MapLayer> hierarchy = new List<MapLayer>();
+        hierarchy.Add(new MapLayer(0, worldMap.instance));
+        hierarchy.AddRange(GetHierarchyRecursively(worldMap.instance, 0));
+
+        return hierarchy;
     }
 
-    List<MapLayer> SetHierarchyRecursively(List<InstanceMap> maps, int level) {
-        List<MapLayer> children = new List<MapLayer>();
+    List<MapLayer> GetHierarchyRecursively(InstanceMap instance, int level) {
+        List<MapLayer> layers = new List<MapLayer>();
 
-        foreach (InstanceMap map in maps) {
-            MapLayer child = new MapLayer(new string('>', level) + map.name);
-            if(map.regions != null && map.regions.Count > 0) {
-                child.children = SetHierarchyRecursively(map.regions, level++);
-            }
-            children.Add(child);
-        }
-
-        return children;
-    }
-
-    public List<string> GetHierarchy() {
-        List<string> layers = new List<string>();
-        layers.Add(mapLayers.layerName);
-        if (mapLayers.children != null && mapLayers.children.Count > 0) {
-            foreach (MapLayer layer in mapLayers.children) {
-                layers.AddRange(GetHierarchyRecursively(layer));
-            }
-        }
-        
-
-        return layers;
-    }
-
-    List<string> GetHierarchyRecursively(MapLayer layer) {
-        List<string> layers = new List<string>();
-
-        foreach (MapLayer child in layer.children) {
-            layers.Add(child.layerName);
-            if (child.children != null && child.children.Count > 0) {
-                layers.AddRange(GetHierarchyRecursively(child));
+        foreach (InstanceMap child in instance.regions) {
+            layers.Add(new MapLayer(level + 1, child));
+            if (child.regions != null && child.regions.Count > 0) {
+                layers.AddRange(GetHierarchyRecursively(child, level + 1));
             }
         }
 

@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MapInspectorViewController : MonoBehaviour
-{
+public class MapInspectorViewController : MonoBehaviour {
     [Header("Inspector Tabs")]
     public Button backgroundTabButton;
     public Button drawTabButton;
@@ -46,26 +45,37 @@ public class MapInspectorViewController : MonoBehaviour
     [Space(20)]
     public GameObject imageButtonPrefab;
     public MapHierarchyViewController mapHierarchy;
+    public MapInspectorViewModel viewModel;
+
+    InstanceMap currentInstanceMap;
+    public InstanceMap CurrentInstanceMap {
+        get {
+            return currentInstanceMap;
+        }
+        set {
+            currentInstanceMap = value;
+            UpdateLayers();
+        }
+    }
 
     MapLayers currentMapLayer {
         get {
             return currentMapLayer;
         }
         set {
+            CleanLayerPanels();
             if (value == MapLayers.Background) {
                 SetupBackgroundLayer();
-            }
-            else if (value == MapLayers.Draw) {
+            } else if (value == MapLayers.Draw) {
                 SetupDrawLayer();
-            }
-            else if (value == MapLayers.Place) {
+            } else if (value == MapLayers.Place) {
                 SetupPlaceLayer();
             }
         }
     }
 
-    const string COLOR_URI = "Colors";
-    const string MAPS_URI = "WorldMaps";
+    const string COLOR_URI = "Colors/";
+    const string MAPS_URI = "WorldMaps/";
 
     enum MapLayers {
         Background, Draw, Place
@@ -75,6 +85,30 @@ public class MapInspectorViewController : MonoBehaviour
         currentMapLayer = MapLayers.Background;
 
         SetupButtons();
+
+        viewModel = new MapInspectorViewModel();
+        //TODO update draw panel for view model color/linewidth/transparency
+    }
+
+    void UpdateLayers() {
+        UpdateBackgroundLayer();
+        UpdateDrawLayer();
+        UpdatePlaceLayer();
+    }
+
+    void UpdateBackgroundLayer() {
+        currentMapImage.sprite = CurrentInstanceMap.map.backgroundLayer.image;
+        currentBackgroundColorImage.sprite = CurrentInstanceMap.map.backgroundLayer.color;
+        rowsInput.text = CurrentInstanceMap.map.backgroundLayer.rows.ToString();
+        columnsInput.text = CurrentInstanceMap.map.backgroundLayer.columns.ToString();
+    }
+
+    void UpdateDrawLayer() {
+        //update draw image
+    }
+
+    void UpdatePlaceLayer() {
+
     }
 
     void SetupButtons() {
@@ -98,8 +132,16 @@ public class MapInspectorViewController : MonoBehaviour
         currentMapLayer = mapLayer;
     }
 
+    void CleanLayerPanels() {
+        backgroundPanel.SetActive(false);
+        drawPanel.SetActive(false);
+        placePanel.SetActive(false);
+    }
+
     #region BackgroundLayer
     void SetupBackgroundLayer() {
+        backgroundPanel.SetActive(true);
+
         Button mapImageButton = currentMapImage.gameObject.GetComponent<Button>();
         mapImageButton.onClick.RemoveAllListeners();
         mapImageButton.onClick.AddListener(delegate {
@@ -129,18 +171,15 @@ public class MapInspectorViewController : MonoBehaviour
     }
 
     //TODO: load map images from server
-    void LoadImages()
-    {
+    void LoadImages() {
         Sprite[] sprites = Resources.LoadAll<Sprite>(MAPS_URI);
-        foreach (Sprite sprite in sprites)
-        {
+        foreach (Sprite sprite in sprites) {
             GameObject imageObject = Instantiate(imageButtonPrefab, mapImageSelector.transform);
             Image image = imageObject.GetComponent<Image>();
             image.sprite = sprite;
             Button button = imageObject.GetComponent<Button>();
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(delegate
-            {
+            button.onClick.AddListener(delegate {
                 OnBackgroundImageSelected(imageObject);
             });
         }
@@ -148,7 +187,7 @@ public class MapInspectorViewController : MonoBehaviour
 
     public void OnBackgroundImageSelected(GameObject image) {
         Sprite sprite = image.GetComponent<Image>().sprite;
-        mapHierarchy.SetBackgroundImage(sprite);
+        CurrentInstanceMap.map.backgroundLayer.image = sprite;
         currentMapImage.sprite = sprite;
         mapImageSelector.SetActive(false);
     }
@@ -177,15 +216,15 @@ public class MapInspectorViewController : MonoBehaviour
 
     void OnBackgroundColorSelected(GameObject colorImage) {
         Sprite sprite = colorImage.GetComponent<Image>().sprite;
-        mapHierarchy.SetBackgroundColor(sprite.texture.GetPixel(0,0));
-        currentMapImage.sprite = sprite;
+        CurrentInstanceMap.map.backgroundLayer.color = sprite;
+        currentBackgroundColorImage.sprite = sprite;
         mapImageSelector.SetActive(false);
     }
 
     void SetMapRows() {
         int rows = -1;
         if (int.TryParse(rowsInput.text, out rows)) {
-            mapHierarchy.SetRows(rows);
+            CurrentInstanceMap.map.backgroundLayer.rows = rows;
         } else {
             rowsInput.text = "";
         }
@@ -193,28 +232,28 @@ public class MapInspectorViewController : MonoBehaviour
 
     void SetMapColumns() {
         int columns = -1;
-        if(int.TryParse(columnsInput.text, out columns)){
-            mapHierarchy.SetColumns(columns);
+        if (int.TryParse(columnsInput.text, out columns)) {
+            CurrentInstanceMap.map.backgroundLayer.columns = columns;
         } else {
             columnsInput.text = "";
         }
     }
 
-    public void ToggleInfoPanel()
-    {
+    public void ToggleInfoPanel() {
         mapImageViewer.SetActive(!mapImageViewer.activeInHierarchy);
         mapImageSelector.SetActive(!mapImageSelector.activeInHierarchy);
     }
 
     void CleanInfoPanel() {
         foreach (Transform child in mapImageSelector.transform) {
-            GameObject.Destroy(child);
+            GameObject.Destroy(child.gameObject);
         }
     }
     #endregion
 
     #region DrawLayer
     void SetupDrawLayer() {
+        drawPanel.SetActive(true);
         Button colorImageButton = currentDrawColorImage.gameObject.GetComponent<Button>();
         colorImageButton.onClick.RemoveAllListeners();
         colorImageButton.onClick.AddListener(delegate {
@@ -243,22 +282,22 @@ public class MapInspectorViewController : MonoBehaviour
         if (float.TryParse(newValue, out lineWidth)) {
             lineWidthSlider.value = lineWidth;
             lineWidthValueInput.text = lineWidth.ToString();
-            mapHierarchy.SetDrawLineWidth(lineWidth);
+            viewModel.SetDrawLineWidth(lineWidth);
         } else {
-            lineWidthSlider.value = mapHierarchy.GetDrawLineWidth();
-            lineWidthValueInput.text = mapHierarchy.GetDrawLineWidth().ToString();
+            lineWidthSlider.value = viewModel.GetDrawLineWidth();
+            lineWidthValueInput.text = viewModel.GetDrawLineWidth().ToString();
         }
     }
 
     void OnTransparencyChanged(string newValue) {
         float transparency = -1;
         if (float.TryParse(newValue, out transparency)) {
-            lineWidthSlider.value = transparency;
-            lineWidthValueInput.text = transparency.ToString();
-            mapHierarchy.SetDrawTransparency(transparency);
+            transparencySlider.value = transparency;
+            transparencyValueInput.text = transparency.ToString();
+            viewModel.SetDrawTransparency(transparency);
         } else {
-            lineWidthSlider.value = mapHierarchy.GetDrawTransparency();
-            lineWidthValueInput.text = mapHierarchy.GetDrawTransparency().ToString();
+            transparencySlider.value = viewModel.GetDrawTransparency();
+            transparencyValueInput.text = viewModel.GetDrawTransparency().ToString();
         }
     }
 
@@ -277,15 +316,15 @@ public class MapInspectorViewController : MonoBehaviour
             Button button = imageObject.GetComponent<Button>();
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(delegate {
-                OnBackgroundImageSelected(imageObject);
+                OnColorClicked(imageObject);
             });
         }
     }
 
     void OnColorClicked(GameObject colorImage) {
         Sprite sprite = colorImage.GetComponent<Image>().sprite;
-        mapHierarchy.SetBackgroundColor(sprite.texture.GetPixel(0, 0));
-        currentMapImage.sprite = sprite;
+        viewModel.SetDrawColor(sprite.texture.GetPixel(0, 0));
+        currentDrawColorImage.sprite = sprite;
         mapImageSelector.SetActive(false);
     }
 
@@ -293,7 +332,7 @@ public class MapInspectorViewController : MonoBehaviour
 
     #region PlaceLayer
     void SetupPlaceLayer() {
-
+        placePanel.SetActive(true);
     }
     #endregion
 }

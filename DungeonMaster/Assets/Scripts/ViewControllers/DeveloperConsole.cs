@@ -147,7 +147,7 @@ public class DeveloperConsole : MonoBehaviour
                 json = NetworkingCalls.GetJSONWithoutID(item);
                 break;
             case DataType.characters:
-                Character character = Character.defaultCharacter;
+                Character character = Character.defaultPlayer;
                 json = NetworkingCalls.GetJSONWithoutID(character);
                 break;
         }

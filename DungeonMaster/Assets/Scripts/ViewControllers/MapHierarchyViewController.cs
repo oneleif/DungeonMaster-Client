@@ -3,24 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MapHierarchyViewController : MonoBehaviour
-{
+public class MapHierarchyViewController : MonoBehaviour {
     public GameObject mapHierachyScrollView;
     public GameObject mapHierarchyLabelPrefab;
+    public MapInspectorViewController mapInspector;
 
     MapHierarchyViewModel viewModel;
 
     WorldMap worldMap;
+
+    List<MapHierarchyLabel> mapHierarchyLabels;
+
     public WorldMap WorldMap {
         get {
             return worldMap;
         }
         set {
             worldMap = value;
-            CurrentInstanceMap = worldMap.instance;
             viewModel = new MapHierarchyViewModel();
-            viewModel.UpdateLayers(worldMap);
-            ShowHierarchy();
+
+            CurrentInstanceMap = worldMap.instance;
         }
     }
 
@@ -31,66 +33,58 @@ public class MapHierarchyViewController : MonoBehaviour
         }
         set {
             currentMap = value;
+            mapInspector.CurrentInstanceMap = currentMap;
+            CleanHierarchy();
+            ShowHierarchy();
+            HighlightCurrentLabel();
         }
     }
 
-    void Start()
-    {
-        
+    void HighlightCurrentLabel() {
+        foreach (MapHierarchyLabel label in mapHierarchyLabels) {
+            if (label.instanceMap == currentMap) {
+                label.HierarchyItemText.fontStyle = FontStyle.Bold;
+            } else {
+                label.HierarchyItemText.fontStyle = FontStyle.Normal;
+            }
+        }
     }
 
-    void ShowHierarchy()
-    {
-        List<string> layers = viewModel.GetHierarchy();
-        foreach(string layer in layers)
-        {
+    void CleanHierarchy() {
+        foreach (Transform child in mapHierachyScrollView.transform) {
+            GameObject.Destroy(child.gameObject);
+        }
+    }
+
+    void ShowHierarchy() {
+        List<MapLayer> layers = viewModel.GetHierarchy(worldMap);
+        mapHierarchyLabels = new List<MapHierarchyLabel>();
+        foreach (MapLayer layer in layers) {
             GameObject label = Instantiate(mapHierarchyLabelPrefab, mapHierachyScrollView.transform);
-            MapHeirarchyLabel hierarchyLabel = label.GetComponentInChildren<MapHeirarchyLabel>();
-            hierarchyLabel.HierarchyItemText.text = layer;
+            MapHierarchyLabel hierarchyLabel = label.GetComponent<MapHierarchyLabel>();
+            hierarchyLabel.HierarchyItemText.text = new string('>', layer.level) + layer.instance.name;
+            hierarchyLabel.instanceMap = layer.instance;
+            hierarchyLabel.HierarchyItemButton.onClick.RemoveAllListeners();
+            hierarchyLabel.HierarchyItemButton.onClick.AddListener(delegate {
+                OnHierarchyItemSelected(hierarchyLabel);
+            });
+
             hierarchyLabel.AddChildButton.onClick.RemoveAllListeners();
             hierarchyLabel.AddChildButton.onClick.AddListener(delegate {
-                AddChildButtonClicked();
+                AddChildButtonClicked(hierarchyLabel);
             });
+
+            mapHierarchyLabels.Add(hierarchyLabel);
         }
     }
 
-    void AddChildButtonClicked() {
-
+    void OnHierarchyItemSelected(MapHierarchyLabel label) {
+        CurrentInstanceMap = label.instanceMap;
     }
 
-    #region BackgroundLayer setters
-    public void SetBackgroundImage(Sprite sprite) {
-        currentMap.map.backgroundLayer.image = sprite;
+    void AddChildButtonClicked(MapHierarchyLabel label) {
+        InstanceMap newInstance = new InstanceMap();
+        label.instanceMap.regions.Add(newInstance);
+        CurrentInstanceMap = newInstance;
     }
-
-    public void SetBackgroundColor(Color color) {
-        currentMap.map.backgroundLayer.color = color;
-    }
-
-    public void SetRows(int rows) {
-        currentMap.map.backgroundLayer.rows = rows;
-    }
-
-    public void SetColumns(int columns) {
-        currentMap.map.backgroundLayer.columns = columns;
-    }
-    #endregion
-
-    #region DrawLayer settings
-    public void SetDrawLineWidth(float lineWidth) {
-        currentMap.map.drawLayer.lineWidth = lineWidth;
-    }
-
-    public float GetDrawLineWidth() {
-        return currentMap.map.drawLayer.lineWidth;
-    }
-
-    public void SetDrawTransparency(float transparency) {
-        currentMap.map.drawLayer.transparency = transparency;
-    }
-
-    public float GetDrawTransparency() {
-        return currentMap.map.drawLayer.transparency;
-    }
-    #endregion
 }

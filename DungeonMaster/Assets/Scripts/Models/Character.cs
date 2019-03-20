@@ -4,9 +4,11 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class Character
+public class Character : Placeable
 {
-    public static Character defaultCharacter = new Character(null, "leif", 0, "Dwarf", "Mine", 0, 0, 10, 0, 0, 0, 0, new Ability[] { }, new string[] { }, new string[] { }, new string[] { }, new string[] { }, Skills.defaultSkills, Stats.defaultStats, Stats.defaultStats);
+    public static Character defaultNPC = new Character(null, "leif", 0, "Dwarf", "Mine", 0, 0, 10, 0, 0, 0, 0, new Ability[] { }, new string[] { }, new string[] { }, new string[] { }, new string[] { }, Skills.defaultSkills, Stats.defaultStats, Stats.defaultStats, PlaceableType.npc);
+    public static Character defaultPlayer = new Character(null, "leif", 0, "Dwarf", "Mine", 0, 0, 10, 0, 0, 0, 0, new Ability[] { }, new string[] { }, new string[] { }, new string[] { }, new string[] { }, Skills.defaultSkills, Stats.defaultStats, Stats.defaultStats, PlaceableType.player);
+    public static Character defaultMonster = new Character(null, "leif", 0, "Dwarf", "Mine", 0, 0, 10, 0, 0, 0, 0, new Ability[] { }, new string[] { }, new string[] { }, new string[] { }, new string[] { }, Skills.defaultSkills, Stats.defaultStats, Stats.defaultStats, PlaceableType.monster);
 
     [SerializeField]
     string id;
@@ -49,7 +51,7 @@ public class Character
     [SerializeField]
     Stats coreStats;
 
-    public Character(string id, string name, int size, string type, string subType, int alignment, int ac, int hp, int speed, int level, int experience, int characterType, Ability[] abilities, string[] languages, string[] senses, string[] invulnerabilities, string[] resistances, Skills skills, Stats savingThrows, Stats coreStats) {
+    public Character(string id, string name, int size, string type, string subType, int alignment, int ac, int hp, int speed, int level, int experience, int characterType, Ability[] abilities, string[] languages, string[] senses, string[] invulnerabilities, string[] resistances, Skills skills, Stats savingThrows, Stats coreStats, PlaceableType placeableType) {
         this.id = id;
         this.name = name;
         this.size = size;
@@ -70,6 +72,7 @@ public class Character
         this.skills = skills;
         this.savingThrows = savingThrows;
         this.coreStats = coreStats;
+        this.placeableType = placeableType;
     }
 }
 
