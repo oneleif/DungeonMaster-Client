@@ -7,7 +7,7 @@ public class DrawViewModel {
     // PEN COLOUR
     public Color penColor = Color.red;
     // PEN WIDTH (actually, it's a radius, in pixels)
-    public int penWidth = 1000;
+    public int penWidth = 3;
 
 
     public Stack<Color32[]> undos;
@@ -33,14 +33,11 @@ public class DrawViewModel {
     }
 
     public void AddUndo(Color32[] undo) {
-        Debug.Log("adding undo");
         undos.Push(undo);
         redos.Clear();
     }
 
     public Color32[] Undo(Color32[] newState) {
-        Debug.Log("undo");
-
         Color32[] undoToGet = undos.Pop();
         redos.Push(newState);
         return undoToGet;
@@ -51,8 +48,6 @@ public class DrawViewModel {
     }
 
     public Color32[] Redo(Color32[] newState) {
-        Debug.Log("redo");
-
         Color32[] redoToGet = redos.Pop();
         undos.Push(newState);
         return redoToGet;

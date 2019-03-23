@@ -33,7 +33,9 @@ public class DrawViewController : MonoBehaviour {
     void Awake() {
         currentBrush = PenBrush;
 
-        drawSprite = this.GetComponent<SpriteRenderer>().sprite;
+        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+        drawSprite = renderer.sprite;
+        renderer.material.renderQueue = 3001;
         drawTexture = drawSprite.texture;
 
         drawViewModel = new DrawViewModel();
@@ -61,8 +63,8 @@ public class DrawViewController : MonoBehaviour {
             // Check if the current mouse position overlaps our image
             Collider2D hit = Physics2D.OverlapPoint(mouseWorldPosition);
             if (hit != null && hit.transform != null) {
-                if (previousDragPosition != Vector2.zero) {
-                    drawViewModel.AddUndo(currentColors);
+                if (!mouseWasHeldDown) {
+                    drawViewModel.AddUndo(drawTexture.GetPixels32());
                 }
                 // We're over the texture we're drawing on!
                 // Use whatever function the current brush is
@@ -79,7 +81,6 @@ public class DrawViewController : MonoBehaviour {
         }
         // Mouse is released
         else if (!isMouseHeldDown) {
-
             previousDragPosition = Vector2.zero;
             isNotDrawingOnCurrentDrag = false;
         }
@@ -87,7 +88,7 @@ public class DrawViewController : MonoBehaviour {
     }
 
     void KeyboardInput() {
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftControl))
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
             && Input.GetKeyDown(KeyCode.Z)) {
             if (Input.GetKey(KeyCode.LeftShift) && drawViewModel.CanRedo()) {
                 currentColors = drawViewModel.Redo(drawTexture.GetPixels32());
