@@ -4766,7 +4766,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00017716466, y: 0.000024559977}
+  m_AnchoredPosition: {x: -0.00017716466, y: 0.000007659205}
   m_SizeDelta: {x: 17, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &701154505
@@ -5749,7 +5749,7 @@ MonoBehaviour:
   m_Script: {fileID: -765806418, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 25690226e709ce6459a53187b44392fd, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
@@ -5757,7 +5757,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: ae7c549f18b3f4946a24a0b884dddada, type: 3}
+  m_Sprite: {fileID: 0}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10675,7 +10675,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1575609981
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13630,12 +13630,16 @@ MonoBehaviour:
   drawPanel: {fileID: 1159175710}
   placePanel: {fileID: 1162013957}
   mapImageViewer: {fileID: 1018881342}
+  mapBackgroundImage: {fileID: 1575609982}
+  mapGridImage: {fileID: 243160987}
+  mapDrawImage: {fileID: 835126673}
   mapImageSelector: {fileID: 921933937}
   currentMapImage: {fileID: 213646491}
   currentBackgroundColorImage: {fileID: 389530100}
   rowsInput: {fileID: 867719569}
   columnsInput: {fileID: 1309842749}
   currentDrawColorImage: {fileID: 81110144}
+  drawViewController: {fileID: 835126675}
   lineWidthSlider: {fileID: 1182593886}
   lineWidthValueInput: {fileID: 1198128050}
   transparencySlider: {fileID: 2016384555}

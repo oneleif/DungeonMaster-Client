@@ -33,18 +33,19 @@ public class DrawViewController : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         rectTransform = GetComponent<RectTransform>();
         drawImage = GetComponent<Image>();
-        drawSprite = drawImage.sprite;
-        drawTexture = drawSprite.texture;
 
         drawViewModel = new DrawViewModel();
+    }
+
+    public void Initialize() {
+        drawSprite = drawImage.sprite;
+        drawTexture = drawSprite.texture;
 
         resetColor = new Color(0, 0, 0, 0);
         resetColorsArray = new Color[(int)drawSprite.rect.width * (int)drawSprite.rect.height];
 
         for (int x = 0; x < resetColorsArray.Length; x++)
             resetColorsArray[x] = resetColor;
-
-        ResetCanvas();
     }
 
     void Update() {
@@ -93,10 +94,10 @@ public class DrawViewController : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         if (previousDragPosition == Vector2.zero) {
             // If this is the first time we've ever dragged on this image, simply colour the pixels at our mouse position
-            MarkPixelsToColour(pixelPosition, drawViewModel.penWidth, drawViewModel.penColor);
+            MarkPixelsToColour(pixelPosition, drawViewModel.penWidth);
         } else {
             // Color in a line from where we were on the last update call
-            ColorBetween(previousDragPosition, pixelPosition, drawViewModel.penWidth, drawViewModel.penColor);
+            ColorBetween(previousDragPosition, pixelPosition, drawViewModel.penWidth);
         }
         ApplyMarkedPixelChanges();
 
@@ -104,7 +105,7 @@ public class DrawViewController : MonoBehaviour, IBeginDragHandler, IDragHandler
         previousDragPosition = pixelPosition;
     }
 
-    public void MarkPixelsToColour(Vector2 center_pixel, int pen_thickness, Color color_of_pen) {
+    public void MarkPixelsToColour(Vector2 center_pixel, int pen_thickness) {
         // Figure out how many pixels we need to colour in each direction (x and y)
         int center_x = (int)center_pixel.x;
         int center_y = (int)center_pixel.y;
@@ -116,13 +117,13 @@ public class DrawViewController : MonoBehaviour, IBeginDragHandler, IDragHandler
                 continue;
 
             for (int y = center_y - pen_thickness; y <= center_y + pen_thickness; y++) {
-                MarkPixelToChange(x, y, color_of_pen);
+                MarkPixelToChange(x, y);
             }
         }
     }
 
     // Set the colour of pixels in a straight line from start_point all the way to end_point, to ensure everything inbetween is coloured
-    public void ColorBetween(Vector2 start_point, Vector2 end_point, int width, Color color) {
+    public void ColorBetween(Vector2 start_point, Vector2 end_point, int width) {
         // Get the distance from start to finish
         float distance = Vector2.Distance(start_point, end_point);
         Vector2 direction = (start_point - end_point).normalized;
@@ -134,12 +135,12 @@ public class DrawViewController : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         for (float lerp = 0; lerp <= 1; lerp += lerp_steps) {
             cur_position = Vector2.Lerp(start_point, end_point, lerp);
-            MarkPixelsToColour(cur_position, width, color);
+            MarkPixelsToColour(cur_position, width);
         }
     }
 
 
-    public void MarkPixelToChange(int x, int y, Color color) {
+    public void MarkPixelToChange(int x, int y) {
         // Need to transform x and y coordinates to flat coordinates of array
         int array_pos = y * (int)drawSprite.rect.width + x;
 
@@ -147,7 +148,7 @@ public class DrawViewController : MonoBehaviour, IBeginDragHandler, IDragHandler
         if (array_pos > currentColors.Length || array_pos < 0)
             return;
 
-        currentColors[array_pos] = color;
+        currentColors[array_pos] = drawViewModel.penColor;
     }
 
     public void ApplyMarkedPixelChanges() {
@@ -204,5 +205,29 @@ public class DrawViewController : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     public void OnEndDrag(PointerEventData eventData) {
         previousDragPosition = Vector2.zero;
+    }
+
+    public void SetDrawColor(Color color) {
+        drawViewModel.SetDrawColour(color);
+    }
+
+    public Color GetDrawColor() {
+        return drawViewModel.penColor;
+    }
+
+    public void SetDrawLineWidth(int width) {
+        drawViewModel.SetLineWidth(width);
+    }
+
+    public int GetDrawLineWidth() {
+        return drawViewModel.penWidth;
+    }
+
+    public void SetDrawTransparency(float transparency) {
+        drawViewModel.SetAlpha(transparency);
+    }
+
+    public float GetDrawTransparency() {
+        return drawViewModel.transparency;
     }
 }

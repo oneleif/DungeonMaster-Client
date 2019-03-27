@@ -15,6 +15,9 @@ public class MapInspectorViewController : MonoBehaviour {
 
     [Header("Map editor center pane")]
     public GameObject mapImageViewer;
+    public Image mapBackgroundImage;
+    public Image mapGridImage;
+    public Image mapDrawImage;
     public GameObject mapImageSelector;
 
     #region BackgroundLayer variables
@@ -28,6 +31,7 @@ public class MapInspectorViewController : MonoBehaviour {
     #region DrawLayer variables
     [Header("DrawLayer")]
     public Image currentDrawColorImage;
+    public DrawViewController drawViewController;
     public Slider lineWidthSlider;
     public InputField lineWidthValueInput;
     public Slider transparencySlider;
@@ -98,6 +102,10 @@ public class MapInspectorViewController : MonoBehaviour {
 
     void UpdateBackgroundLayer() {
         currentMapImage.sprite = CurrentInstanceMap.map.backgroundLayer.image;
+        mapBackgroundImage.sprite = CurrentInstanceMap.map.backgroundLayer.image;
+        //TODO: update grid
+        mapDrawImage.sprite = Sprite.Create(CurrentInstanceMap.map.drawLayer.texture, new Rect(0.0f, 0.0f, CurrentInstanceMap.map.drawLayer.texture.width, CurrentInstanceMap.map.drawLayer.texture.height), new Vector2(0, 0));
+        drawViewController.Initialize();
         currentBackgroundColorImage.sprite = CurrentInstanceMap.map.backgroundLayer.color;
         rowsInput.text = CurrentInstanceMap.map.backgroundLayer.rows.ToString();
         columnsInput.text = CurrentInstanceMap.map.backgroundLayer.columns.ToString();
@@ -189,7 +197,8 @@ public class MapInspectorViewController : MonoBehaviour {
         Sprite sprite = image.GetComponent<Image>().sprite;
         CurrentInstanceMap.map.backgroundLayer.image = sprite;
         currentMapImage.sprite = sprite;
-        mapImageSelector.SetActive(false);
+        mapBackgroundImage.sprite = sprite;
+        ToggleInfoPanel();
     }
 
 
@@ -218,7 +227,7 @@ public class MapInspectorViewController : MonoBehaviour {
         Sprite sprite = colorImage.GetComponent<Image>().sprite;
         CurrentInstanceMap.map.backgroundLayer.color = sprite;
         currentBackgroundColorImage.sprite = sprite;
-        mapImageSelector.SetActive(false);
+        ToggleInfoPanel();
     }
 
     void SetMapRows() {
@@ -282,10 +291,10 @@ public class MapInspectorViewController : MonoBehaviour {
         if (float.TryParse(newValue, out lineWidth)) {
             lineWidthSlider.value = lineWidth;
             lineWidthValueInput.text = lineWidth.ToString();
-            viewModel.SetDrawLineWidth(lineWidth);
+            drawViewController.SetDrawLineWidth((int)lineWidth);
         } else {
-            lineWidthSlider.value = viewModel.GetDrawLineWidth();
-            lineWidthValueInput.text = viewModel.GetDrawLineWidth().ToString();
+            lineWidthSlider.value = drawViewController.GetDrawLineWidth();
+            lineWidthValueInput.text = drawViewController.GetDrawLineWidth().ToString();
         }
     }
 
@@ -294,10 +303,10 @@ public class MapInspectorViewController : MonoBehaviour {
         if (float.TryParse(newValue, out transparency)) {
             transparencySlider.value = transparency;
             transparencyValueInput.text = transparency.ToString();
-            viewModel.SetDrawTransparency(transparency);
+            drawViewController.SetDrawTransparency(transparency);
         } else {
-            transparencySlider.value = viewModel.GetDrawTransparency();
-            transparencyValueInput.text = viewModel.GetDrawTransparency().ToString();
+            transparencySlider.value = drawViewController.GetDrawTransparency();
+            transparencyValueInput.text = drawViewController.GetDrawTransparency().ToString();
         }
     }
 
@@ -323,9 +332,9 @@ public class MapInspectorViewController : MonoBehaviour {
 
     void OnColorClicked(GameObject colorImage) {
         Sprite sprite = colorImage.GetComponent<Image>().sprite;
-        viewModel.SetDrawColor(sprite.texture.GetPixel(0, 0));
+        drawViewController.SetDrawColor(sprite.texture.GetPixel(0, 0));
         currentDrawColorImage.sprite = sprite;
-        mapImageSelector.SetActive(false);
+        ToggleInfoPanel();
     }
 
     #endregion

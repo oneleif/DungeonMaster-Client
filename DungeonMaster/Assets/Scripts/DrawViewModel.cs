@@ -9,6 +9,7 @@ public class DrawViewModel {
     // PEN WIDTH (actually, it's a radius, in pixels)
     public int penWidth = 3;
 
+    public float transparency = 1;
 
     public Stack<Color32[]> undos;
     public Stack<Color32[]> redos;
@@ -18,11 +19,11 @@ public class DrawViewModel {
         redos = new Stack<Color32[]>();
     }
 
-    public void SetMarkerColour(Color new_color) {
+    public void SetDrawColour(Color new_color) {
         penColor = new_color;
     }
 
-    public void SetMarkerWidth(int new_width) {
+    public void SetLineWidth(int new_width) {
         penWidth = new_width;
     }
 
